@@ -1,4 +1,7 @@
-# BFS to solve Travel Sales Man Problem TSP 
+# Using BFS, DFS, NN to solve Travel Sales Man Problem
+
+Problem:
+========
 Create a set of cities (as points) with coordinates x, y on a plane with height as z coordinate. The cost of going from city A to city B is equal to the Euclidean distance between two cities, if there exists a road. You should define scenarios according to two criteria:
 
 a. There are all the direct connections / c.a. 80% of possible connections
@@ -11,4 +14,4 @@ In the created scene, solve the traveling salesman problem: The salesman starts 
 
 In the problem, we define state as a partial or full path from the starting city and the corresponding state. You should represent the search problem in a form of state tree.
 
-a. Implement a full search of the tree, using BFS.
+
