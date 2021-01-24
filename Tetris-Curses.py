@@ -1,4 +1,4 @@
-# You have to run the following cmd either in your terminal
+# You have to run the following cmd in your terminal
 # pip install windows-curses
 
 import curses, random, time
