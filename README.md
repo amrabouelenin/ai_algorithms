@@ -1,4 +1,4 @@
-# Algorithms to solve poular AI proplems and others subjects
+# Algorithms to solve popular AI proplems and others.
 
 This section contains several Algorithms to solve different problems, and it contains my learning experience with AI using python.
 
