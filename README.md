@@ -1,17 +1,19 @@
-# Using BFS, DFS, NN to solve Travel Sales Man Problem
+# Algorithms to solve poular AI proplems and others subjects
 
-Problem:
-========
-Create a set of cities (as points) with coordinates x, y on a plane with height as z coordinate. The cost of going from city A to city B is equal to the Euclidean distance between two cities, if there exists a road. You should define scenarios according to two criteria:
+This section contains several Algorithms to solve different problems, and it contains my learning experience with AI using python.
 
-a. There are all the direct connections / c.a. 80% of possible connections
 
-b. The problem is symmetrical / asymmetrical (in asymmetrical – going up is height +10%, going down: -10%) You should choose the coordinates randomly from the range <-100, 100> for x,y and <0, 50> for z.
+## Subjects:
 
-Represent the created map as a weighted (directed) graph, where cities are the nodes and roads are the edges of the graph.
+* Travel sales man Problem (TSP).
+* Tetris Game.
 
-In the created scene, solve the traveling salesman problem: The salesman starts from a chosen city and has to visit every city exactly once before returning to the starting city. The goal is to find a path with the lowest cost.
+## Algorithms tested for TSP
 
-In the problem, we define state as a partial or full path from the starting city and the corresponding state. You should represent the search problem in a form of state tree.
+* Bredth First Search (BFS).
+* Depth First Search (DFS).
+* Dijkstra Algorithm.
+* Nearest Neighbour.
 
+Note: you may need to tweek the algorithms a little bit to fit your solution, but you have to get the concept first in mind before copying and pasting the code.
 
