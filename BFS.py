@@ -2,11 +2,14 @@
 import numpy as np
 import pandas as pd
 from mpl_toolkits import mplot3d
+import networkx as nx
+import math
+# library for 3d visualization of the problem
 from plotly import __version__
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 import plotly.express as px
-import networkx as nx
-import math
+
+############# main bredth first algorithm ################
 
 def BFS_TSP(graph_dict, start):
     paths = []
@@ -29,8 +32,6 @@ def BFS_TSP(graph_dict, start):
         print("exploring city", city)
         for child in children:
             if child != start:
-                #print("adding", child)
-                #print("city path", city_path)
                 if(city_path):
                     new_path = city_path.copy()
                     # check if the child not in the path
@@ -82,11 +83,6 @@ def city_has_path(city, paths):
         if path[-1] == city:
             return path
     return False
-
-
-
-
-
 
 ########################################## Initializing the problem parameters ##############################
 
