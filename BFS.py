@@ -155,7 +155,7 @@ for (city1, city2) in G.edges:
     else:
         graph_dict[city2] = [city1]
 
-
+#################################### RUN the Algorithm #################################################
 # run the algorithm with start node 0
 final_paths = BFS_TSP(graph_dict, 0)
 
