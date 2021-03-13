@@ -1,169 +1,165 @@
-# Import libraries
+# importing required libraries
 import numpy as np
+import networkx as nx
 import math
 
-# to build a graph of cities
-import networkx as nx
+############## Dijkstra Algorithm ##########
 
-# generate random points for x,y between -100, 100
-xy = np.random.randint(-100,100, size=(5, 2))
+def Dijkstra(graph_dict):
+    i = 0
+    condition = True
+    current_city = 0
+    # to keep track of cities we had visited
+    visited = []
 
-# generate random hight values for the plan between -50, 50
-z = np.random.randint(-50,50, size=(5, 1))
+    # to keep track of cities we havn't visited yet
+    unvisited = list(city_names)
 
-# concatinate all coorindates in one array for later retrival of information
-xyz = np.concatenate((xy, z), axis=1)
+    # start from city = 0
+    start = 0
 
-# generate 5 city names as 0,1,2, ..
-city_names = np.arange(5)
+    # distances from start to all vericies
+    distances = []
 
-# link city names with it's coorindates
-cities = np.concatenate((city_names.reshape(5,1), xy), axis=1)
+    # previous cities
+    prev_cities = []
 
-# prepare a graph with edges for the cities
-G=nx.Graph()
-i = 0
-for city in cities:
-     G.add_node(cities[i,0],pos=tuple(cities[i,1:].astype(int)))
-     i = i+1
+    # initilize the algorithem by setting the distance from the start city to all other city
 
-edges_list = []
-for city in cities:
-    for city_temp in cities:
-        if city_temp[0] != city[0]:
-            Euclidean_distance = math.sqrt(((city[1]-city_temp[1])**2)+((city[2]-city_temp[2])**2))
-            #G.add_edge(city[0], city_temp[0],weight = 5)
-            G.add_edge(city[0], city_temp[0],weight = round(Euclidean_distance,0))
-            edges_list.append((city[0], city_temp[0]))
-# to have 80% possible connection
-G.remove_edge(0,4)
-G.remove_edge(2,4)
-
-# create dictionary to save every city with it's neighbors
-graph_dict = {}
-for (city1, city2) in G.edges:
-    if city1 in graph_dict:
-        graph_dict[city1].append(city2)
-    else:
-        graph_dict[city1] = [city2]
-    if city2 in graph_dict:
-        graph_dict[city2].append(city1)
-    else:
-        graph_dict[city2] = [city1]
-
-
-# function to calculate the totl cost of the completed final_path#+10%, going down: -10%)
-
-def calc_cost_path (complete_path, xyz):
-    total_cost = 0
-    print(complete_path)
-    #complete_path = [0, 2, 3, 4, 1, 0]
-    for i in range(0,len(complete_path)-1):
-
-        if i == len(complete_path):
-            break
-        city1 = complete_path[i]
-        city2 = complete_path[i+1]
-
-        Euclidean_distance = math.sqrt(((xyz[city1][0]-xyz[city2][0])**2)+((xyz[city1][1]-xyz[city2][1])**2))
-        print ("distance between city {} and city {} is {}". format( city1, city2, Euclidean_distance))
-        if (xyz[city1][2] > xyz[city2][2]): #means that the plane is travleing from bottom to top
-            total_cost_z = Euclidean_distance + (Euclidean_distance * .10)
-            print ("flyiing down  from city {} to city  {} with total distance {}". format( city1, city2, total_cost_z))
+    for city in graph_dict:
+        # set distance for all cities starting from inifity
+        if city == 0:
+            # set distance from the start city to itself to zero
+            distances.append(0)
         else:
-            total_cost_z = Euclidean_distance - (Euclidean_distance * .10)
-            print ("flyiing up  from city {} to city  {} with total distance {}". format( city1, city2, total_cost_z))
+            distances.append(math.inf)
 
-        total_cost = total_cost + total_cost_z
+    shortest_path = []
 
-    return total_cost
+    while(unvisited):
 
-  # Calculate the distance between two cities if z1 is less than z2 from city one to city two
-  # then it decrease distance by -10% else increased the distance by 10% of the total cost
-def calc_distance (city1, city2, xyz):
+        current_neighbors = graph_dict[current_city]
+        if i == 10:
+            condition = False
+        i = i+1
+        # set smallest distance temp
+        smallest_distance = math.inf
+        temp_city = 0
+        for neighbor in current_neighbors:
+            if neighbor not in visited:
+                # remove 0 if it is in the current nebour
+                if start in current_neighbors:
+                    current_neighbors.remove(start)
+                # calculate the distance between the temp city and the start
+                new_distance = calculate_distance(start, neighbor,cities_xyz_coordinates)
+                if distances[neighbor] > new_distance:
+                    distances[neighbor] = new_distance
+                # select the city with smallest distance to be the start
+                if new_distance < smallest_distance:
+                    smallest_distance = new_distance
+                    temp_city = neighbor
+                    # update the previous vertices - cities
+                    prev_cities.append([neighbor, current_city])
+                    print('Shortest path distance list', distances)
+                    print('Visited',visited)
+                    print('Previous vertices',prev_cities)
 
-    total_cost = 0
+        # mark the current city as visited
+        shortest_path.append(current_city)
+        visited.append(current_city)
+        if current_city in unvisited:
+            unvisited.remove(current_city)
+        current_city = temp_city
 
-    Euclidean_distance = math.sqrt(((xyz[city1][0]-xyz[city2][0])**2)+((xyz[city1][1]-xyz[city2][1])**2))
+    shortest_path.append(start)
 
-    # if the plane is flying down to city2
-    if (xyz[city1][2] > xyz[city2][2]):
+################################### Helper Functions #######################################################
 
-        total_cost_z = Euclidean_distance - (Euclidean_distance * .10)
+# maping the cities coordinates into a network of graph for better visualization
+# removing edges/routes between cities if nessacary according to requirement
 
-    # the plane if flying up to city2
+def genearte_cities_map(cities):
+    # intialize cities_map
+    cities_map = nx.Graph()
+    i = 0
+    for city in cities:
+        cities_map.add_node(cities[i,0],pos=tuple(cities[i,1:].astype(int)))
+        i = i+1
+
+    edges_list = []
+    for city in cities:
+        for city_temp in cities:
+            if city_temp[0] != city[0]:
+
+                Euclidean_distance = math.sqrt(((city[1]-city_temp[1])**2)+((city[2]-city_temp[2])**2))
+                cities_map.add_edge(city[0], city_temp[0],weight = round(Euclidean_distance,0))
+                edges_list.append((city[0], city_temp[0]))
+
+    # to have 80% possible connection
+    cities_map.remove_edge(0,4)
+    cities_map.remove_edge(2,4)
+    return cities_map
+
+# store final cities information in a dictionary
+def create_cities_dict(cities_map):
+    cities_dict = {}
+    for (start, destination) in cities_map.edges:
+        if start in cities_dict:
+            cities_dict[start].append(destination)
+        else:
+            cities_dict[start] = [destination]
+        if destination in cities_dict:
+            cities_dict[destination].append(start)
+        else:
+            cities_dict[destination] = [start]
+    return cities_dict
+
+# This is an Euclidean function to calculate the cost of traveling between two cities
+# according to the following rule:
+# if the plan moves from top to bottom and bottom to up as per #+10%, going down: -10%)
+def calculate_distance (start, destination, cities_xyz_coordinates):
+    cost = 0
+    Euclidean_distance = math.sqrt(((cities_xyz_coordinates[start][0]-cities_xyz_coordinates[destination][0])**2)+((cities_xyz_coordinates[start][1]-cities_xyz_coordinates[destination][1])**2))
+
+    # check if the plane is flying for higher position to lower one. 
+    if (cities_xyz_coordinates[start][2] > cities_xyz_coordinates[destination][2]): 
+        z_cost = Euclidean_distance + (Euclidean_distance * .10)
+        print ("flyiing down  from city {} to city  {} with total distance {}". format( start, destination, z_cost))
+    # the plain is flying from bottom to higher position
     else:
-        total_cost_z = Euclidean_distance + (Euclidean_distance * .10)
+        z_cost = Euclidean_distance - (Euclidean_distance * .10)
+        print ("flyiing up  from city {} to city  {} with total distance {}". format( start, destination, z_cost))
+    
+    cost += z_cost
+    return cost
 
-    total_cost = total_cost + total_cost_z
-    return total_cost
+########################################## Initializing the problem parameters ##############################
 
+# number of cities
+n = 5
+xy_coorindates_lower_limit = -100
+xy_coorindates_upper_limit = 100
+# generating x,y points between -100, 100 for n cities as an initial values.
+# -100, 100 are requirement, it can be modfieid
+cities_xy_coorindates = np.random.randint(xy_coorindates_lower_limit,xy_coorindates_upper_limit, size=(n, 2))
 
-    # driver Code
-i = 0
-condition = True
-current_city = 0
+# geneating z to represent the plan height from the ground as the salesman is using plane.
+z_coorindates_lower_limit = -50
+z_coorindates_upper_limit = 50
+cities_z_coordinates = np.random.randint(z_coorindates_lower_limit,z_coorindates_upper_limit, size=(n, 1))
 
-# to keep track of cities we had visited
-visited = []
+# concatinating cities_xyz_coordinates matercs
+cities_xyz_coordinates = np.concatenate((cities_xy_coorindates, cities_z_coordinates), axis=1)
 
-# to keep track of cities we havn't visited yet
-unvisited = list(city_names)
+# give city names number 
+city_names = np.arange(n)
 
-# start from city = 0
-start = 0
+# create cities with their corresponding corridintates
+cities = np.concatenate((city_names.reshape(n,1), cities_xy_coorindates), axis=1)
 
-# distances from start to all vericies
-distances = []
+# generate full map with distances
+cities_map = genearte_cities_map(cities)
+# store map coordinates of the cities in dictionary
+cities_dict = create_cities_dict(cities_map)
 
-# previous cities
-prev_cities = []
-
-# initilize the algorithem by setting the distance from the start city to all other city
-
-for city in graph_dict:
-    # set distance for all cities starting from inifity
-    if city == 0:
-        # set distance from the start city to itself to zero
-        distances.append(0)
-    else:
-        distances.append(math.inf)
-
-shortest_path = []
-
-while(unvisited):
-
-    current_neighbors = graph_dict[current_city]
-    if i == 10:
-        condition = False
-    i = i+1
-    # set smallest distance temp
-    smallest_distance = math.inf
-    temp_city = 0
-    for neighbor in current_neighbors:
-        if neighbor not in visited:
-            # remove 0 if it is in the current nebour
-            if start in current_neighbors:
-                current_neighbors.remove(start)
-            # calculate the distance between the temp city and the start
-            new_distance = calc_distance(start, neighbor,xyz)
-            if distances[neighbor] > new_distance:
-                distances[neighbor] = new_distance
-            # select the city with smallest distance to be the start
-            if new_distance < smallest_distance:
-                smallest_distance = new_distance
-                temp_city = neighbor
-                # update the previous vertices - cities
-                prev_cities.append([neighbor, current_city])
-                print('Shortest path distance list', distances)
-                print('Visited',visited)
-                print('Previous vertices',prev_cities)
-
-    # mark the current city as visited
-    shortest_path.append(current_city)
-    visited.append(current_city)
-    if current_city in unvisited:
-        unvisited.remove(current_city)
-    current_city = temp_city
-
-shortest_path.append(start)
+Dijkstra(cities_dict)
