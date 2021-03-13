@@ -70,9 +70,11 @@ def travel_cost(path, cities_xyz_coordinates):
         # check if the plane is flying for higher position to lower one. 
         if (cities_xyz_coordinates[start][2] > cities_xyz_coordinates[destination][2]): 
             z_cost = Euclidean_distance + (Euclidean_distance * .10)
+            print ("flyiing down  from city {} to city  {} with total distance {}". format( start, destination, z_cost))
         # the plain is flying from bottom to higher position
         else:
             z_cost = Euclidean_distance - (Euclidean_distance * .10)
+            print ("flyiing up  from city {} to city  {} with total distance {}". format( start, destination, z_cost))
         cost += z_cost
     return cost
 
