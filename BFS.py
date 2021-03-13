@@ -40,7 +40,7 @@ def BFS_TSP(cities_map, start):
                             if start in cities_map[node]:
                                 new_path.append(start)
                                 print('Completed path ##########', new_path)
-                                total_cost = travel_cost(new_path, xyz)
+                                total_cost = travel_cost(new_path, cities_xyz_coordinates)
                                 print (' with total cost',total_cost)
                                 final_paths.append([new_path,total_cost])
                             else:
@@ -58,17 +58,17 @@ def BFS_TSP(cities_map, start):
 # This is an Euclidean function to calculate the cost of traveling between two cities
 # according to the following rule:
 # if the plan moves from top to bottom and bottom to up as per #+10%, going down: -10%)
-def travel_cost(path, xyz):
+def travel_cost(path, cities_xyz_coordinates):
     cost = 0
     for i in path:
         if i == len(path):
             break
         start = path[i]
         destination = path[i+1]
-        Euclidean_distance = math.sqrt(((xyz[start][0]-xyz[destination][0])**2)+((xyz[start][1]-xyz[destination][1])**2))
+        Euclidean_distance = math.sqrt(((cities_xyz_coordinates[start][0]-cities_xyz_coordinates[destination][0])**2)+((cities_xyz_coordinates[start][1]-cities_xyz_coordinates[destination][1])**2))
 
         # check if the plane is flying for higher position to lower one. 
-        if (xyz[start][2] > xyz[destination][2]): 
+        if (cities_xyz_coordinates[start][2] > cities_xyz_coordinates[destination][2]): 
             z_cost = Euclidean_distance + (Euclidean_distance * .10)
         # the plain is flying from bottom to higher position
         else:
@@ -86,21 +86,25 @@ def city_has_path(city, paths):
 
 # number of cities
 n = 5
-
+xy_coorindates_lower_limit = -100
+xy_coorindates_upper_limit = 100
 # generating x,y points between -100, 100 for n cities as an initial values.
-xy = np.random.randint(-100,100, size=(n, 2))
+# -100, 100 are requirement, it can be modfieid
+cities_xy_coorindates = np.random.randint(xy_coorindates_lower_limit,xy_coorindates_upper_limit, size=(n, 2))
 
 # geneating z to represent the plan height from the ground as the salesman is using plane.
-z = np.random.randint(-50,50, size=(n, 1))
+z_coorindates_lower_limit = -50
+z_coorindates_upper_limit = 50
+cities_z_coordinates = np.random.randint(z_coorindates_lower_limit,z_coorindates_upper_limit, size=(n, 1))
 
-# concatinating xyz matercs
-xyz = np.concatenate((xy, z), axis=1)
+# concatinating cities_xyz_coordinates matercs
+cities_xyz_coordinates = np.concatenate((cities_xy_coorindates, cities_z_coordinates), axis=1)
 
 # give city names number 
 city_names = np.arange(n)
 
 # create cities with their corresponding corridintates
-cities = np.concatenate((city_names.reshape(n,1), xy), axis=1)
+cities = np.concatenate((city_names.reshape(n,1), cities_xy_coorindates), axis=1)
 
 # maping the cities coordinates into a network of graph for better visualization
 # removing edges/routes between cities if nessacary according to requirement
