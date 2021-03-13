@@ -5,9 +5,9 @@ import math
 
 ############## Dijkstra Algorithm ##########
 
-def Dijkstra(graph_dict):
+def Dijkstra(cities_dict):
     i = 0
-    condition = True
+    stop_condtion = True
     current_city = 0
     # to keep track of cities we had visited
     visited = []
@@ -26,7 +26,7 @@ def Dijkstra(graph_dict):
 
     # initilize the algorithem by setting the distance from the start city to all other city
 
-    for city in graph_dict:
+    for city in cities_dict:
         # set distance for all cities starting from inifity
         if city == 0:
             # set distance from the start city to itself to zero
@@ -38,9 +38,9 @@ def Dijkstra(graph_dict):
 
     while(unvisited):
 
-        current_neighbors = graph_dict[current_city]
+        current_neighbors = cities_dict[current_city]
         if i == 10:
-            condition = False
+            stop_condtion = False
         i = i+1
         # set smallest distance temp
         smallest_distance = math.inf
