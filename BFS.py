@@ -5,7 +5,7 @@ import math
 
 ############# Bredth First Algorithm ################
 
-def BFS_TSP(cities_map, start):
+def BFS_TSP(cities_map, cities_xyz_coordinates, start):
     paths = []
     visited = []
     start = 0
@@ -82,30 +82,6 @@ def city_has_path(city, paths):
             return path
     return False
 
-########################################## Initializing the problem parameters ##############################
-
-# number of cities
-n = 5
-xy_coorindates_lower_limit = -100
-xy_coorindates_upper_limit = 100
-# generating x,y points between -100, 100 for n cities as an initial values.
-# -100, 100 are requirement, it can be modfieid
-cities_xy_coorindates = np.random.randint(xy_coorindates_lower_limit,xy_coorindates_upper_limit, size=(n, 2))
-
-# geneating z to represent the plan height from the ground as the salesman is using plane.
-z_coorindates_lower_limit = -50
-z_coorindates_upper_limit = 50
-cities_z_coordinates = np.random.randint(z_coorindates_lower_limit,z_coorindates_upper_limit, size=(n, 1))
-
-# concatinating cities_xyz_coordinates matercs
-cities_xyz_coordinates = np.concatenate((cities_xy_coorindates, cities_z_coordinates), axis=1)
-
-# give city names number 
-city_names = np.arange(n)
-
-# create cities with their corresponding corridintates
-cities = np.concatenate((city_names.reshape(n,1), cities_xy_coorindates), axis=1)
-
 # maping the cities coordinates into a network of graph for better visualization
 # removing edges/routes between cities if nessacary according to requirement
 
@@ -144,6 +120,29 @@ def create_cities_dict(cities_map):
         else:
             cities_dict[destination] = [start]
     return cities_dict
+########################################## Initializing the problem parameters ##############################
+
+# number of cities
+n = 5
+xy_coorindates_lower_limit = -100
+xy_coorindates_upper_limit = 100
+# generating x,y points between -100, 100 for n cities as an initial values.
+# -100, 100 are requirement, it can be modfieid
+cities_xy_coorindates = np.random.randint(xy_coorindates_lower_limit,xy_coorindates_upper_limit, size=(n, 2))
+
+# geneating z to represent the plan height from the ground as the salesman is using plane.
+z_coorindates_lower_limit = -50
+z_coorindates_upper_limit = 50
+cities_z_coordinates = np.random.randint(z_coorindates_lower_limit,z_coorindates_upper_limit, size=(n, 1))
+
+# concatinating cities_xyz_coordinates matercs
+cities_xyz_coordinates = np.concatenate((cities_xy_coorindates, cities_z_coordinates), axis=1)
+
+# give city names number 
+city_names = np.arange(n)
+
+# create cities with their corresponding corridintates
+cities = np.concatenate((city_names.reshape(n,1), cities_xy_coorindates), axis=1)
 
 # generate full map with distances
 cities_map = genearte_cities_map(cities)
@@ -152,7 +151,7 @@ cities_dict = create_cities_dict(cities_map)
 
 #################################### RUN the Algorithm #################################################
 # run the algorithm with start node 0
-final_paths = BFS_TSP(cities_dict, 0)
+final_paths = BFS_TSP(cities_dict, cities_xyz_coordinates, 0)
 
 # list the pathes in a sorted order
 sorted(final_paths, key=lambda x: x[1])
