@@ -1,24 +1,19 @@
 # importing required libraries
 import numpy as np
-import pandas as pd
-from mpl_toolkits import mplot3d
 import networkx as nx
 import math
-# library for 3d visualization of the problem
-from plotly import __version__
-from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
-import plotly.express as px
 
-############# main bredth first algorithm ################
+############# Bredth First Algorithm ################
 
-def BFS_TSP(graph_dict, start):
+def BFS_TSP(cities_map, start):
     paths = []
     visited = []
     start = 0
     queue = []
     final_paths = []
+
     # geneare the root paths
-    children = graph_dict[start]
+    children = cities_map[start]
     for child in children:
         paths.append([start,child])
         queue.append([start,child])
@@ -27,9 +22,9 @@ def BFS_TSP(graph_dict, start):
     while(len(queue)):
         path = queue.pop(0)
         city = path[-1]
-        children = graph_dict[city]
+        children = cities_map[city]
         city_path = city_has_path(city, paths)
-        print("exploring city", city)
+        print("Exploring city #", city)
         for child in children:
             if child != start:
                 if(city_path):
@@ -42,10 +37,10 @@ def BFS_TSP(graph_dict, start):
                         paths.append(new_path)
                         if (len(new_path) == 5):
                             node = new_path[-1]
-                            if start in graph_dict[node]:
+                            if start in cities_map[node]:
                                 new_path.append(start)
                                 print('Completed path ##########', new_path)
-                                total_cost = calc_cost_path(new_path, xyz)
+                                total_cost = travel_cost(new_path, xyz)
                                 print (' with total cost',total_cost)
                                 final_paths.append([new_path,total_cost])
                             else:
@@ -60,23 +55,26 @@ def BFS_TSP(graph_dict, start):
 
 ################################### Helper Functions #######################################################
 
-# cost of the path from city to another considering the hight of the plane
-# if it moves from top to bottom and bottom to up as per #+10%, going down: -10%)
-def calc_cost_path (complete_path, xyz):
-    total_cost = 0
-    for i in complete_path:
-        if i == len(complete_path):
+# This is an Euclidean function to calculate the cost of traveling between two cities
+# according to the following rule:
+# if the plan moves from top to bottom and bottom to up as per #+10%, going down: -10%)
+def travel_cost(path, xyz):
+    cost = 0
+    for i in path:
+        if i == len(path):
             break
-        city1 = complete_path[i]
-        city2 = complete_path[i+1]
-        Euclidean_distance = math.sqrt(((xyz[city1][0]-xyz[city2][0])**2)+((xyz[city1][1]-xyz[city2][1])**2))
-        if (xyz[city1][2] > xyz[city2][2]): #means that the plane is travleing from bottom to top
-            total_cost_z = Euclidean_distance + (Euclidean_distance * .10)
-        else:
-            total_cost_z = Euclidean_distance - (Euclidean_distance * .10)
-        total_cost = total_cost + total_cost_z
+        start = path[i]
+        destination = path[i+1]
+        Euclidean_distance = math.sqrt(((xyz[start][0]-xyz[destination][0])**2)+((xyz[start][1]-xyz[destination][1])**2))
 
-    return total_cost
+        # check if the plane is flying for higher position to lower one. 
+        if (xyz[start][2] > xyz[destination][2]): 
+            z_cost = Euclidean_distance + (Euclidean_distance * .10)
+        # the plain is flying from bottom to higher position
+        else:
+            z_cost = Euclidean_distance - (Euclidean_distance * .10)
+        cost += z_cost
+    return cost
 
 def city_has_path(city, paths):
     for path  in paths:
@@ -104,56 +102,53 @@ city_names = np.arange(n)
 # create cities with their corresponding corridintates
 cities = np.concatenate((city_names.reshape(n,1), xy), axis=1)
 
+# maping the cities coordinates into a network of graph for better visualization
+# removing edges/routes between cities if nessacary according to requirement
 
-############################ Draw the problem according to requirments ############################
+def genearte_cities_map(cities):
+    # intialize cities_map
+    cities_map = nx.Graph()
+    i = 0
+    for city in cities:
+        cities_map.add_node(cities[i,0],pos=tuple(cities[i,1:].astype(int)))
+        i = i+1
 
-G=nx.Graph()
-i = 0
-for city in cities:
-     G.add_node(cities[i,0],pos=tuple(cities[i,1:].astype(int)))
-     i = i+1
+    edges_list = []
+    for city in cities:
+        for city_temp in cities:
+            if city_temp[0] != city[0]:
 
-edges_list = []
-for city in cities:
-    for city_temp in cities:
-        if city_temp[0] != city[0]:
+                Euclidean_distance = math.sqrt(((city[1]-city_temp[1])**2)+((city[2]-city_temp[2])**2))
+                cities_map.add_edge(city[0], city_temp[0],weight = round(Euclidean_distance,0))
+                edges_list.append((city[0], city_temp[0]))
 
-            Euclidean_distance = math.sqrt(((city[1]-city_temp[1])**2)+((city[2]-city_temp[2])**2))
-            G.add_edge(city[0], city_temp[0],weight = round(Euclidean_distance,0))
-            edges_list.append((city[0], city_temp[0]))
+    # to have 80% possible connection
+    cities_map.remove_edge(0,4)
+    cities_map.remove_edge(2,4)
+    return cities_map
 
-# to have 80% possible connection
-G.remove_edge(0,4)
-G.remove_edge(2,4)
-pos=nx.get_node_attributes(G,'pos')
-nx.draw(G,pos,node_size=1000,node_color='blue',alpha=0.9,labels={node:node for node in G.nodes()})
-labels = nx.get_edge_attributes(G,'weight')
-nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
+# store final cities information in a dictionary
+def create_cities_dict(cities_map):
+    cities_dict = {}
+    for (start, destination) in cities_map.edges:
+        if start in cities_dict:
+            cities_dict[start].append(destination)
+        else:
+            cities_dict[start] = [destination]
+        if destination in cities_dict:
+            cities_dict[destination].append(start)
+        else:
+            cities_dict[destination] = [start]
+    return cities_dict
 
-# 3d visiualization for the possible positions of the plan for every city
-xyz_df = pd.DataFrame(xyz)
-xyz_df.rename(columns={0: 'x', 1: 'y',  2:'z'}, inplace=True)
-xyz_df
-px.scatter_3d()
-fig = px.scatter_3d(xyz_df, x='x', y='y', z='z')
-fig.show()
-
-####################################### store final city information in Dictionary ######################
-
-graph_dict = {}
-for (city1, city2) in G.edges:
-    if city1 in graph_dict:
-        graph_dict[city1].append(city2)
-    else:
-        graph_dict[city1] = [city2]
-    if city2 in graph_dict:
-        graph_dict[city2].append(city1)
-    else:
-        graph_dict[city2] = [city1]
+# generate full map with distances
+cities_map = genearte_cities_map(cities)
+# store map coordinates of the cities in dictionary
+cities_dict = create_cities_dict(cities_map)
 
 #################################### RUN the Algorithm #################################################
 # run the algorithm with start node 0
-final_paths = BFS_TSP(graph_dict, 0)
+final_paths = BFS_TSP(cities_dict, 0)
 
 # list the pathes in a sorted order
 sorted(final_paths, key=lambda x: x[1])
